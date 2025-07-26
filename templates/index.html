@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>¡Hola, Flask Modular!</h1>
+    <p>Todo está funcionando bien.</p>
+
+    {% if usuario_actual %}
+        <p>Bienvenido, {{ usuario_actual.username }} 👋</p>
+        <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+    {% else %}
+        <p>No has iniciado sesión.</p>
+        <a href="{{ url_for('auth.login') }}">Iniciar sesión</a>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mi App</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<nav class="navbar">
+  <a class="btn" href="{{ url_for('main.home') }}">🏠 Inicio</a>
+  <a class="btn" href="{{ url_for('main.ver_jugadores') }}">👥 Jugadores</a>
+  <a class="btn" href="{{ url_for('main.agregar_jugador') }}">➕ Agregar jugador</a>
+  <a class="btn" href="{{ url_for('main.ver_equipos') }}">🏟️ Equipos</a>
+  <a class="btn" href="{{ url_for('main.agregar_equipo') }}">➕ Agregar equipo</a>
+
+</nav>
+
+<nav class="navbar">
+  <a href="{{ url_for('main.home') }}">Inicio</a>
+
+  {% if usuario_actual %}
+    <span>Hola, {{ usuario_actual.username }} 👋</span>
+    <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+  {% else %}
+    <a href="{{ url_for('auth.login') }}">Login</a>
+    <a href="{{ url_for('auth.register') }}">Registro</a>
+  {% endif %}
+</nav>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul class="flashes">
+        {% for msg in messages %}
+          <li>{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <div class="content">
+    {% block content %}{% endblock %}
+  </div>
+
+</body>
+</html>

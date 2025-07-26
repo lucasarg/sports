@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Lista de Jugadores</h2>
+
+  {% if jugadores %}
+    <ul>
+      {% for jugador in jugadores %}
+        <li>{{ jugador.nombre }} ({{ jugador.posicion or 'Sin posición' }}, {{ jugador.edad or 'Edad desconocida' }} años)</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No hay jugadores registrados todavía.</p>
+<a href="{{ url_for('main.agregar_jugador') }}">Agregar jugador</a>
+  {% endif %}
+{% endblock %}
