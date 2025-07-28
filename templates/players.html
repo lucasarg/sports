@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Players</h1>
+
+  <!-- Action button specific to this page -->
+  <a class="btn" href="{{ url_for('main.add_player') }}">➕ Add Player</a>
+
+  <ul>
+    {% for player in players %}
+      <li>{{ player.name }} ({{ player.position }})</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h2>Iniciar sesión</h2>
+  <h2>Log In</h2>
   <form method="POST">
-    {{ form.hidden_tag() }}  <!-- Token CSRF -->
+    {{ form.hidden_tag() }}  <!-- CSRF Token -->
 
     <p>
       {{ form.username.label }}<br>

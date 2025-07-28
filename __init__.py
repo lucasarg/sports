@@ -1,39 +1,54 @@
-from flask import Flask, session                    # <-- importado aquí
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 from config import DevelopmentConfig
 from dotenv import load_dotenv
 import os
-load_dotenv()  # Carga el archivo .env
 
-# Creamos la instancia de SQLAlchemy fuera de create_app para importarla en models
+# Load environment variables from .env file
+load_dotenv()
+
+# Instantiate extensions globally
 db = SQLAlchemy()
+login_manager = LoginManager()
 
+# ----------------------------------------
+# 🔧 Flask application factory
+# ----------------------------------------
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(DevelopmentConfig)
-    
 
-    # Configuración de la base de datos SQLite (archivo local)
+    # Load configuration from a class (DevelopmentConfig)
+    app.config.from_object(DevelopmentConfig)
+
+    # Set database connection using environment variable
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    # Set the secret key used for session, CSRF protection, etc.
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
-
-    # Inicializamos la base de datos con la app Flask
+    # Initialize extensions with the Flask app
     db.init_app(app)
+    login_manager.init_app(app)
 
-    # Registramos los blueprints
+    # Define the default login view if user tries to access a protected page
+    login_manager.login_view = "auth.login"
+
+    # ----------------------------------------
+    # 🔁 User loader for Flask-Login
+    # ----------------------------------------
+    @login_manager.user_loader
+    def load_user(user_id):
+        from app.models import User  # Import here to avoid circular imports
+        return User.query.get(int(user_id))
+
+    # ----------------------------------------
+    # 📦 Register blueprints (modular routes)
+    # ----------------------------------------
     from .routes import main
     from .auth.routes import auth
     app.register_blueprint(main)
     app.register_blueprint(auth)
-
-    @app.context_processor
-    def injectar_usuario_actual():
-        from app.models import Usuario                      
-        usuario = None
-        if "usuario_id" in session:
-            usuario = Usuario.query.get(session["usuario_id"])
-        return dict(usuario_actual=usuario)
 
     return app

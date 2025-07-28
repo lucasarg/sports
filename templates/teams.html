@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Teams</h1>
+
+  <!-- Page-specific button -->
+  <a class="btn" href="{{ url_for('main.add_team') }}">➕ Add Team</a>
+
+  <ul>
+    {% for team in teams %}
+      <li>{{ team.name }} ({{ team.city }})</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

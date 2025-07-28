@@ -1,33 +1,69 @@
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, IntegerField
-from wtforms.validators import DataRequired,Email, EqualTo, Length, NumberRange
+from flask_wtf import FlaskForm  # Base class for Flask-WTF forms
+from wtforms import StringField, PasswordField, SubmitField, IntegerField  # Basic form field types
+from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange  # Common validators
 
-# Clase que representa el formulario de login
+# ----------------------------------------
+# 🔐 Login Form
+# ----------------------------------------
 class LoginForm(FlaskForm):
-    username = StringField('Usuario', validators=[DataRequired()])
-    password = PasswordField('Contraseña', validators=[DataRequired()])
-    submit = SubmitField('Ingresar')
+    # Username field, required
+    username = StringField('User', validators=[DataRequired()])
+    
+    # Password field, required
+    password = PasswordField('Password', validators=[DataRequired()])
+    
+    # Submit button
+    submit = SubmitField('Submit')
 
 
-# Formulario de registro
+# ----------------------------------------
+# 📝 Registration Form
+# ----------------------------------------
 class RegisterForm(FlaskForm):
-    username = StringField('Usuario', validators=[DataRequired()])
+    # Username field, required
+    username = StringField('User', validators=[DataRequired()])
+    
+    # Email field, must be a valid email format
     email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Contraseña', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirmar contraseña', validators=[
-        DataRequired(), EqualTo('password', message='Las contraseñas deben coincidir')
+    
+    # Password field, required
+    password = PasswordField('Password', validators=[DataRequired()])
+    
+    # Confirmation password, must match 'password'
+    confirm_password = PasswordField('Confirm Password', validators=[
+        DataRequired(), EqualTo('password', message='Passwords must be the same')
     ])
-    submit = SubmitField('Registrarse')
+    
+    # Submit button
+    submit = SubmitField('Register')
 
-class JugadorForm(FlaskForm):
-    nombre = StringField("Nombre", validators=[DataRequired(), Length(min=2, max=100)])
-    posicion = StringField("Posición", validators=[Length(max=50)])
-    edad = IntegerField("Edad", validators=[NumberRange(min=0, max=120)])
-    submit = SubmitField("Agregar jugador")
-from wtforms import IntegerField
 
-class EquipoForm(FlaskForm):
-    nombre = StringField("Nombre del equipo", validators=[DataRequired(), Length(min=2, max=100)])
-    ciudad = StringField("Ciudad", validators=[Length(max=100)])
-    fundado_en = IntegerField("Año de fundación", validators=[NumberRange(min=1800, max=2100)])
-    submit = SubmitField("Agregar equipo")
+# ----------------------------------------
+# ⚽ Player Form
+# ----------------------------------------
+class PlayerForm(FlaskForm):
+    # Name field, required, with length between 2 and 100 characters
+    name = StringField("Name", validators=[DataRequired(), Length(min=2, max=100)])
+    
+    # Position field, optional, with a max length of 50
+    position = StringField("Position", validators=[Length(max=50)])
+    
+    # Age field, must be between 0 and 120
+    age = IntegerField("Age", validators=[NumberRange(min=0, max=120)])
+    
+    # Submit button
+    submit = SubmitField("Submit")
+
+
+# ----------------------------------------
+# 🏟️ Team Form
+# ----------------------------------------
+class TeamForm(FlaskForm):
+    # Team name, required, between 2 and 100 characters
+    name = StringField("Team name", validators=[DataRequired(), Length(min=2, max=100)])
+    
+    # City name, optional, max 100 characters
+    city = StringField("City", validators=[Length(max=100)])
+
+    # Submit button
+    submit = SubmitField("Add team")

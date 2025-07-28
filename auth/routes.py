@@ -1,35 +1,42 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, session
-from app.models import Usuario               # Modelo de la tabla 'usuarios'
-from app import db                          # Objeto de la base de datos SQLAlchemy
-from werkzeug.security import generate_password_hash , check_password_hash # Para encriptar contraseñas
-from app.forms import LoginForm, RegisterForm         # Formularios de login y registro
+from app.models import User               # Model representing the 'users' table
+from app import db                        # SQLAlchemy database instance
+from werkzeug.security import generate_password_hash, check_password_hash  # For password encryption
+from app.forms import LoginForm, RegisterForm  # Forms for login and registration
 
-
+# ----------------------------------------
+# 🔐 Blueprint for authentication routes
+# ----------------------------------------
 auth = Blueprint('auth', __name__)
 
+# ----------------------------------------
+# 🔑 Login route (GET shows the form, POST processes the login)
+# ----------------------------------------
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        username = form.username.data  # Capturamos lo que el usuario escribió
-        password = form.password.data
+        username = form.username.data  # Get the entered username
+        password = form.password.data  # Get the entered password
 
-        # Buscamos el usuario en la base de datos
-        usuario = Usuario.query.filter_by(username=username).first()
+        # Search for the user in the database
+        user = User.query.filter_by(username=username).first()
 
-        # Verificamos si el usuario existe y la contraseña es correcta
-        if usuario and check_password_hash(usuario.password, password):
-            session['usuario_id'] = usuario.id   # ← Este es el "inicio real de sesión"
-            flash(f'Bienvenido {usuario.username} 👋', 'success')
-            return redirect(url_for('main.home'))  # Redirigimos a la página principal
+        # Check if user exists and password is correct
+        if user and check_password_hash(user.password, password):
+            session['user_id'] = user.id  # 🔐 This marks the user as "logged in"
+            flash(f'Welcome {user.username} 👋', 'success')
+            return redirect(url_for('main.home'))  # Redirect to the home page
         else:
-            flash('Credenciales incorrectas ❌', 'danger')  # Mostramos error
+            flash('Invalid credentials ❌', 'danger')  # Show error message
 
-    # Si no se envió el formulario o hay errores, se vuelve a mostrar
+    # If GET request or form is not valid, show the login form again
     return render_template('login.html', form=form)
 
-
+# ----------------------------------------
+# 📝 Registration route (GET shows the form, POST registers the user)
+# ----------------------------------------
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
@@ -39,24 +46,27 @@ def register():
         email = form.email.data
         password = form.password.data
 
-        # Encriptamos la contraseña antes de guardarla
+        # Hash the password before saving it
         hashed_password = generate_password_hash(password)
 
-        # Creamos el objeto Usuario
-        nuevo_usuario = Usuario(username=username, email=email, password=hashed_password)
+        # Create a new user instance
+        new_user = User(username=username, email=email, password=hashed_password)
 
-        # Lo agregamos a la base de datos
-        db.session.add(nuevo_usuario)
+        # Add the new user to the database
+        db.session.add(new_user)
         db.session.commit()
 
-        flash('¡Registro exitoso! Ya podés iniciar sesión.', 'success')
+        flash('Registration successful! You can now log in.', 'success')
         return redirect(url_for('auth.login'))
 
     return render_template('register.html', form=form)
 
-
+# ----------------------------------------
+# 🚪 Logout route
+# ----------------------------------------
 @auth.route('/logout')
 def logout():
-    session.pop('usuario_id', None)  # Eliminamos la clave de sesión
-    flash('Sesión cerrada correctamente 👋', 'info')
+    # Remove the user_id from the session
+    session.pop('user_id', None)
+    flash('You have been logged out 👋', 'info')
     return redirect(url_for('auth.login'))

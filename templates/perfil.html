@@ -1,8 +1,0 @@
-{% extends "base.html" %}
-
-{% block content %}
-  <h2>Perfil del Usuario</h2>
-  <p>Hola, {{ usuario.username }} 👋</p>
-  <p>Correo: {{ usuario.email }}</p>
-  <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
-{% endblock %}
