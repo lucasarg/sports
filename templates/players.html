@@ -1,14 +1,26 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-  <h1>Players</h1>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Player List</h2>
+    <a href="{{ url_for('main.add_player') }}" class="btn btn-success">➕ Add Player</a>
+  </div>
 
-  <!-- Action button specific to this page -->
-  <a class="btn" href="{{ url_for('main.add_player') }}">➕ Add Player</a>
-
-  <ul>
-    {% for player in players %}
-      <li>{{ player.name }} ({{ player.position }})</li>
-    {% endfor %}
-  </ul>
+  {% if players %}
+    <ul class="list-group">
+      {% for player in players %}
+        <li class="list-group-item">
+          <strong>{{ player.name }}</strong>
+          ({{ player.position or 'No position' }}, {{ player.age or 'Unknown age' }} years old)
+          {% if player.team %}
+            - Team: {{ player.team.name }} ({{ player.team.city }})
+          {% else %}
+            - No team assigned
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No players registered yet.</p>
+  {% endif %}
 {% endblock %}
