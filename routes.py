@@ -54,7 +54,8 @@ def add_player():
         new_player = Player(
             name=form.name.data,
             position=form.position.data,
-            age=form.age.data
+            age=form.age.data,
+            team_id = SelectField("Team", coerce=int)
         )
         db.session.add(new_player)  # Add player to database session
         db.session.commit()         # Commit changes to the database
@@ -63,6 +64,38 @@ def add_player():
 
     # Show the form if GET or if validation fails
     return render_template("add_player.html", form=form)
+
+
+
+@main.route("/edit-player/<int:id>", methods=["GET", "POST"])
+def edit_player(id):
+    player = Player.query.get_or_404(id)
+    form = PlayerForm(obj=player)  # Carga los datos actuales
+
+    # Cargar los equipos para el select
+    form.team_id.choices = [(team.id, team.name) for team in Team.query.all()]
+
+    if form.validate_on_submit():
+        player.name = form.name.data
+        player.position = form.position.data
+        player.age = form.age.data
+        player.team_id = form.team_id.data
+
+        db.session.commit()
+        flash(f"{player.name} updated successfully ✅", "success")
+        return redirect(url_for("main.view_players"))
+
+    return render_template("edit_player.html", form=form, player=player)
+
+
+
+@main.route("/delete-player/<int:id>", methods=["POST"])
+def delete_player(id):
+    player = Player.query.get_or_404(id)
+    db.session.delete(player)
+    db.session.commit()
+    flash(f"Player '{player.name}' deleted successfully 🗑️", "info")
+    return redirect(url_for("main.view_players"))
 
 
 # ----------------------------------------
@@ -93,3 +126,29 @@ def add_team():
     
     # Show the form if GET or if validation fails
     return render_template("add_team.html", form=form)
+
+@main.route("/edit-team/<int:id>", methods=["GET", "POST"])
+def edit_team(id):
+    team = Team.query.get_or_404(id)
+    form = TeamForm(obj=team)
+    if form.validate_on_submit():
+        team.name = form.name.data
+        team.city = form.city.data
+        db.session.commit()
+        flash(f"Team '{team.name}' updated ✏️", "success")
+        return redirect(url_for("main.view_teams"))
+    return render_template("edit_team.html", form=form, team=team)
+
+@main.route("/delete-team/<int:id>", methods=["POST"])
+def delete_team(id):
+    team = Team.query.get_or_404(id)
+
+    # Unassign team from all players
+    for player in team.players:
+        player.team_id = None
+
+    db.session.delete(team)
+    db.session.commit()
+    flash(f"Team '{team.name}' deleted, and players unassigned ⚠️", "info")
+    return redirect(url_for("main.view_teams"))
+

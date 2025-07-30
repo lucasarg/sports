@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Edit Player: {{ player.name }}</h2>
+
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+      {{ form.name.label }}<br>
+      {{ form.name(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.position.label }}<br>
+      {{ form.position(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.age.label }}<br>
+      {{ form.age(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.team_id.label }}<br>
+      {{ form.team_id(class="form-select") }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update Player</button>
+  </form>
+{% endblock %}
