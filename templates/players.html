@@ -3,6 +3,29 @@
 {% block content %}
   <h2>Player List</h2>
 
+  <!-- Filter and Search Form -->
+  <form method="GET" action="{{ url_for('main.view_players') }}" style="margin-bottom: 1rem;">
+    <label for="team">Filter by team:</label>
+    <select name="team" id="team">
+      <option value="">All Teams</option>
+      {% for team in teams %}
+        <option value="{{ team.id }}" {% if selected_team == team.id %}selected{% endif %}>
+          {{ team.name }}
+        </option>
+      {% endfor %}
+    </select>
+
+    <label for="search" style="margin-left: 1rem;">Search:</label>
+    <input type="text" name="search" id="search" value="{{ search or '' }}" placeholder="Name or position">
+
+    <button type="submit">Apply</button>
+
+    {% if search or selected_team %}
+      <a href="{{ url_for('main.view_players') }}" style="margin-left: 1rem;">Clear filters</a>
+    {% endif %}
+  </form>
+
+  <!-- Add Player Link -->
   <p>
     <a href="{{ url_for('main.add_player') }}">➕ Add Player</a>
   </p>
@@ -12,14 +35,19 @@
       {% for player in players %}
         <li style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
           <span>
-            <strong>{{ player.name }}</strong>
+            <strong>
+              <a href="{{ url_for('main.player_detail', id=player.id) }}">
+                {{ player.name }}
+              </a>
+            </strong>
             ({{ player.position or 'No position' }}, {{ player.age or 'Unknown age' }} years old)
             {% if player.team %}
-              – Team: {{ player.team.name }} ({{ player.team.city }})
+              – Team: <a href="{{ url_for('main.team_detail', id=player.team.id) }}">{{ player.team.name }}</a> ({{ player.team.city }})
             {% else %}
               – No team assigned
             {% endif %}
           </span>
+
           <span>
             <a href="{{ url_for('main.edit_player', id=player.id) }}">✏️ Edit</a>
 

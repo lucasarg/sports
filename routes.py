@@ -1,9 +1,9 @@
 # ----------------------------------------
 # 📦 Flask imports & app components
-# ----------------------------------------
+    # ----------------------------------------
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
 from app.utils import login_required  # Custom decorator to protect routes
-from app.models import User  # User model for session-based login
+from app.models import User, Team, Player  # User model for session-based login
 from app.forms import PlayerForm  # Form to create a player
 from app.forms import TeamForm    # Form to create a team
 from app import db  # Database instance
@@ -42,8 +42,28 @@ from flask import render_template  # (reimported, though already imported above 
 # View all players
 @main.route("/players")
 def view_players():
-    players = Player.query.all()  # Fetch all players from the database
-    return render_template("players.html", players=players)
+    team_id = request.args.get("team", type=int)
+    search = request.args.get("search", "", type=str).strip().lower()
+
+    teams = Team.query.order_by(Team.name).all()
+
+    # Base query
+    query = Player.query
+
+    if team_id:
+        query = query.filter_by(team_id=team_id)
+
+    if search:
+        query = query.filter(
+            db.or_(
+                Player.name.ilike(f"%{search}%"),
+                Player.position.ilike(f"%{search}%")
+            )
+        )
+
+    players = query.all()
+
+    return render_template("players.html", players=players, teams=teams, selected_team=team_id, search=search)
 
 # Add a new player (GET shows the form, POST handles the submission)
 @main.route("/add-player", methods=["GET", "POST"])
@@ -97,6 +117,11 @@ def delete_player(id):
     flash(f"Player '{player.name}' deleted successfully 🗑️", "info")
     return redirect(url_for("main.view_players"))
 
+@main.route("/players/<int:id>")
+def player_detail(id):
+    player = Player.query.get_or_404(id)
+    return render_template("player_detail.html", player=player)
+
 
 # ----------------------------------------
 # 🏟️ Teams section
@@ -144,11 +169,17 @@ def delete_team(id):
     team = Team.query.get_or_404(id)
 
     # Unassign team from all players
-    for player in team.players:
-        player.team_id = None
+    players_to_delete = Player.query.filter_by(team_id=team.id).all()
+    for player in players_to_delete:
+        db.session.delete(player)
 
     db.session.delete(team)
     db.session.commit()
     flash(f"Team '{team.name}' deleted, and players unassigned ⚠️", "info")
     return redirect(url_for("main.view_teams"))
 
+@main.route("/teams/<int:id>")
+def team_detail(id):
+    team = Team.query.get_or_404(id)
+    players = Player.query.filter_by(team_id=team.id).all()
+    return render_template("team_detail.html", team=team, players=players)
