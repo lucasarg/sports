@@ -41,6 +41,6 @@ def create_app():
     # ----------------------------------------
     # 📦 Register all blueprints
     # ----------------------------------------
-    register_routes(app)
+    register_routes(app)  # ✅ This already registers all blueprints
 
     return app
