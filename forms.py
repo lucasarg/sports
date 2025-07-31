@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm  # Base class for Flask-WTF forms
-from wtforms import StringField, PasswordField, SubmitField, IntegerField  # Basic form field types
-from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange  # Common validators
+from wtforms import StringField, PasswordField, SubmitField, IntegerField,SelectField  # Basic form field types
+from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange, Optional  # Common validators
 
 # ----------------------------------------
 # 🔐 Login Form
@@ -50,6 +50,8 @@ class PlayerForm(FlaskForm):
     
     # Age field, must be between 0 and 120
     age = IntegerField("Age", validators=[NumberRange(min=0, max=120)])
+
+    team_id = SelectField('Team', coerce=int, validators=[Optional()])
     
     # Submit button
     submit = SubmitField("Submit")

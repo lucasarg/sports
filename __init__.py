@@ -1,16 +1,13 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
 from config import DevelopmentConfig
 from dotenv import load_dotenv
 import os
 
-# Load environment variables from .env file
-load_dotenv()
+from app.extensions import db, login_manager  # ✅ From extensions
+from app.routes import register_routes        # ✅ Register all Blueprints
 
-# Instantiate extensions globally
-db = SQLAlchemy()
-login_manager = LoginManager()
+# Load environment variables from .env
+load_dotenv()
 
 # ----------------------------------------
 # 🔧 Flask application factory
@@ -18,21 +15,19 @@ login_manager = LoginManager()
 def create_app():
     app = Flask(__name__)
 
-    # Load configuration from a class (DevelopmentConfig)
+    # Load settings from config class
     app.config.from_object(DevelopmentConfig)
 
-    # Set database connection using environment variable
+    # Set from environment (you can override DevelopmentConfig this way)
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-    # Set the secret key used for session, CSRF protection, etc.
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
-    # Initialize extensions with the Flask app
+    # Initialize extensions
     db.init_app(app)
     login_manager.init_app(app)
 
-    # Define the default login view if user tries to access a protected page
+    # Default login route for @login_required
     login_manager.login_view = "auth.login"
 
     # ----------------------------------------
@@ -40,15 +35,12 @@ def create_app():
     # ----------------------------------------
     @login_manager.user_loader
     def load_user(user_id):
-        from app.models import User  # Import here to avoid circular imports
+        from app.models import User  # ✅ Safe now
         return User.query.get(int(user_id))
 
     # ----------------------------------------
-    # 📦 Register blueprints (modular routes)
+    # 📦 Register all blueprints
     # ----------------------------------------
-    from .routes import main
-    from .auth.routes import auth
-    app.register_blueprint(main)
-    app.register_blueprint(auth)
+    register_routes(app)
 
     return app

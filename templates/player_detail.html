@@ -8,7 +8,7 @@
 
   {% if player.team %}
     <p><strong>Team:</strong> 
-      <a href="{{ url_for('main.team_detail', id=player.team.id) }}">
+      <a href="{{ url_for('team.team_detail', id=player.team.id) }}">
         {{ player.team.name }} ({{ player.team.city }})
       </a>
     </p>
@@ -16,5 +16,5 @@
     <p><strong>Team:</strong> No team assigned</p>
   {% endif %}
 
-  <p><a href="{{ url_for('main.view_players') }}">← Back to Players</a></p>
+  <p><a href="{{ url_for('player.view_players') }}">← Back to Players</a></p>
 {% endblock %}
